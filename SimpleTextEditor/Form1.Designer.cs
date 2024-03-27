@@ -28,10 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             toolStrip1 = new ToolStrip();
             backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             richTextBox1 = new RichTextBox();
             statusStrip1 = new StatusStrip();
+            printDocument1 = new System.Drawing.Printing.PrintDocument();
+            contextMenuStrip1 = new ContextMenuStrip(components);
             SuspendLayout();
             // 
             // toolStrip1
@@ -56,12 +59,22 @@
             // statusStrip1
             // 
             statusStrip1.ImageScalingSize = new Size(24, 24);
-            statusStrip1.Location = new Point(0, 422);
+            statusStrip1.Location = new Point(0, 428);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(800, 28);
+            statusStrip1.Size = new Size(800, 22);
             statusStrip1.TabIndex = 2;
             statusStrip1.Text = "statusStrip1";
             statusStrip1.ItemClicked += statusStrip1_ItemClicked;
+            // 
+            // printDocument1
+            // 
+            printDocument1.PrintPage += printDocument1_PrintPage;
+            // 
+            // contextMenuStrip1
+            // 
+            contextMenuStrip1.ImageScalingSize = new Size(24, 24);
+            contextMenuStrip1.Name = "contextMenuStrip1";
+            contextMenuStrip1.Size = new Size(61, 4);
             // 
             // Form1
             // 
@@ -83,5 +96,7 @@
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private RichTextBox richTextBox1;
         private StatusStrip statusStrip1;
+        private System.Drawing.Printing.PrintDocument printDocument1;
+        private ContextMenuStrip contextMenuStrip1;
     }
 }

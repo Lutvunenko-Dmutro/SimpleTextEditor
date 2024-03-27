@@ -2,11 +2,13 @@ using System;
 using System.Windows.Forms;
 using System.IO;
 using System.Drawing;
+using System.Drawing.Printing;
 
 namespace SimpleTextEditor
 {
     public partial class Form1 : Form
     {
+        private string printText;
         public Form1()
         {
             InitializeComponent();
@@ -21,14 +23,17 @@ namespace SimpleTextEditor
             ToolStripMenuItem fileMenu = new ToolStripMenuItem("File");
             ToolStripMenuItem openMenuItem = new ToolStripMenuItem("Open");
             ToolStripMenuItem saveMenuItem = new ToolStripMenuItem("Save");
+            ToolStripMenuItem printMenuItem = new ToolStripMenuItem("Print");  // Додали пункт для друку
             ToolStripMenuItem exitMenuItem = new ToolStripMenuItem("Exit");
 
             openMenuItem.Click += OpenFile;
             saveMenuItem.Click += SaveFile;
+            printMenuItem.Click += PrintFile;  // Додали обробник для друку
             exitMenuItem.Click += ExitApplication;
 
             fileMenu.DropDownItems.Add(openMenuItem);
             fileMenu.DropDownItems.Add(saveMenuItem);
+            fileMenu.DropDownItems.Add(printMenuItem);  // Додали пункт для друку
             fileMenu.DropDownItems.Add(exitMenuItem);
 
             // Edit menu
@@ -41,16 +46,10 @@ namespace SimpleTextEditor
 
             editMenu.DropDownItems.Add(fontMenuItem);
             editMenu.DropDownItems.Add(colorMenuItem);
-
-            // Help menu
             ToolStripMenuItem helpMenu = new ToolStripMenuItem("Help");
             ToolStripMenuItem aboutMenuItem = new ToolStripMenuItem("About");
-
             aboutMenuItem.Click += ShowAboutForm;
-
             helpMenu.DropDownItems.Add(aboutMenuItem);
-
-            // Add menus to main menu strip
             mainMenu.Items.Add(fileMenu);
             mainMenu.Items.Add(editMenu);
             mainMenu.Items.Add(helpMenu);
@@ -58,19 +57,15 @@ namespace SimpleTextEditor
             this.Controls.Add(mainMenu);
             this.MainMenuStrip = mainMenu;
         }
-
         private void OpenFile(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    // Read the contents of the file
                     string fileContent = File.ReadAllText(openFileDialog.FileName);
-
-                    // Assuming you have a RichTextBox named richTextBox1
+                    printText = fileContent;
                     richTextBox1.Text = fileContent;
                 }
                 catch (Exception ex)
@@ -79,9 +74,6 @@ namespace SimpleTextEditor
                 }
             }
         }
-
-
-
         private void SaveFile(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -97,7 +89,6 @@ namespace SimpleTextEditor
                 }
             }
         }
-
         private void ChangeFont(object sender, EventArgs e)
         {
             FontDialog fontDialog = new FontDialog();
@@ -106,7 +97,6 @@ namespace SimpleTextEditor
                 richTextBox1.Font = fontDialog.Font;
             }
         }
-
         private void ChangeColor(object sender, EventArgs e)
         {
             ColorDialog colorDialog = new ColorDialog();
@@ -115,19 +105,29 @@ namespace SimpleTextEditor
                 richTextBox1.SelectionColor = colorDialog.Color;
             }
         }
-
-
         private void ShowAboutForm(object sender, EventArgs e)
         {
             AboutForm aboutForm = new AboutForm();
             aboutForm.ShowDialog();
         }
-
         private void ExitApplication(object sender, EventArgs e)
         {
+            if (richTextBox1.Text != printText)
+            {
+                DialogResult result = MessageBox.Show("Do you want to save changes?", "Save Changes", MessageBoxButtons.YesNoCancel);
+
+                if (result == DialogResult.Yes)
+                {
+                    SaveFile(sender, e);
+                }
+                else if (result == DialogResult.Cancel)
+                {
+                    return;
+                }
+            }
+
             this.Close();
         }
-
         private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             ToolStripItem clickedItem = e.ClickedItem;
@@ -149,27 +149,48 @@ namespace SimpleTextEditor
                 ChangeColor(sender, e);
             }
         }
-
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
-           
-        }
 
+        }
         private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
 
         }
-    }
+        private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
+        {
+            e.Graphics.DrawString(richTextBox1.Text, richTextBox1.Font, Brushes.Black, 100, 100);
+        }
+        private void PrintFile(object sender, EventArgs e)
+        {
+            PrintDialog printDialog = new PrintDialog();
 
+            if (printDialog.ShowDialog() == DialogResult.OK)
+            {
+                PrintDocument printDocument = new PrintDocument();
+                printDocument.PrintPage += PrintDocument_PrintPage;
+
+                printDocument.Print();
+            }
+        }
+
+        private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            int charactersOnPage = 0;
+            int linesPerPage = 0;
+            e.Graphics.DrawString(printText, richTextBox1.Font, Brushes.Black, e.MarginBounds, StringFormat.GenericTypographic);
+            e.Graphics.MeasureString(printText, richTextBox1.Font, e.MarginBounds.Size, StringFormat.GenericTypographic, out charactersOnPage, out linesPerPage);
+            printText = printText.Substring(charactersOnPage);
+            e.HasMorePages = printText.Length > 0;
+        }
+
+    }
     public partial class AboutForm : Form
     {
         public AboutForm()
         {
             InitializeComponent();
         }
-
-        // ... (попередній код без змін)
-
         private void InitializeComponent()
         {
             this.SuspendLayout();
@@ -214,9 +235,5 @@ namespace SimpleTextEditor
 
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-
-        // ... (решта коду без змін)
-
-
     }
 }

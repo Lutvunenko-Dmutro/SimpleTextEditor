@@ -12,6 +12,7 @@ namespace SimpleTextEditor
         public Form1()
         {
             InitializeComponent();
+            this.ControlBox = false; 
             CreateMainMenu();
         }
 
@@ -23,17 +24,17 @@ namespace SimpleTextEditor
             ToolStripMenuItem fileMenu = new ToolStripMenuItem("File");
             ToolStripMenuItem openMenuItem = new ToolStripMenuItem("Open");
             ToolStripMenuItem saveMenuItem = new ToolStripMenuItem("Save");
-            ToolStripMenuItem printMenuItem = new ToolStripMenuItem("Print");  // Додали пункт для друку
+            ToolStripMenuItem printMenuItem = new ToolStripMenuItem("Print");
             ToolStripMenuItem exitMenuItem = new ToolStripMenuItem("Exit");
 
             openMenuItem.Click += OpenFile;
             saveMenuItem.Click += SaveFile;
-            printMenuItem.Click += PrintFile;  // Додали обробник для друку
+            printMenuItem.Click += PrintFile;
             exitMenuItem.Click += ExitApplication;
 
             fileMenu.DropDownItems.Add(openMenuItem);
             fileMenu.DropDownItems.Add(saveMenuItem);
-            fileMenu.DropDownItems.Add(printMenuItem);  // Додали пункт для друку
+            fileMenu.DropDownItems.Add(printMenuItem);
             fileMenu.DropDownItems.Add(exitMenuItem);
 
             // Edit menu
@@ -46,10 +47,15 @@ namespace SimpleTextEditor
 
             editMenu.DropDownItems.Add(fontMenuItem);
             editMenu.DropDownItems.Add(colorMenuItem);
+
+            // Help menu
             ToolStripMenuItem helpMenu = new ToolStripMenuItem("Help");
             ToolStripMenuItem aboutMenuItem = new ToolStripMenuItem("About");
+
             aboutMenuItem.Click += ShowAboutForm;
+
             helpMenu.DropDownItems.Add(aboutMenuItem);
+
             mainMenu.Items.Add(fileMenu);
             mainMenu.Items.Add(editMenu);
             mainMenu.Items.Add(helpMenu);
@@ -57,6 +63,7 @@ namespace SimpleTextEditor
             this.Controls.Add(mainMenu);
             this.MainMenuStrip = mainMenu;
         }
+
         private void OpenFile(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -74,6 +81,7 @@ namespace SimpleTextEditor
                 }
             }
         }
+
         private void SaveFile(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -89,6 +97,7 @@ namespace SimpleTextEditor
                 }
             }
         }
+
         private void ChangeFont(object sender, EventArgs e)
         {
             FontDialog fontDialog = new FontDialog();
@@ -97,6 +106,7 @@ namespace SimpleTextEditor
                 richTextBox1.Font = fontDialog.Font;
             }
         }
+
         private void ChangeColor(object sender, EventArgs e)
         {
             ColorDialog colorDialog = new ColorDialog();
@@ -105,11 +115,13 @@ namespace SimpleTextEditor
                 richTextBox1.SelectionColor = colorDialog.Color;
             }
         }
+
         private void ShowAboutForm(object sender, EventArgs e)
         {
             AboutForm aboutForm = new AboutForm();
             aboutForm.ShowDialog();
         }
+
         private void ExitApplication(object sender, EventArgs e)
         {
             if (richTextBox1.Text != printText)
@@ -128,6 +140,7 @@ namespace SimpleTextEditor
 
             this.Close();
         }
+
         private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             ToolStripItem clickedItem = e.ClickedItem;
@@ -149,18 +162,22 @@ namespace SimpleTextEditor
                 ChangeColor(sender, e);
             }
         }
+
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
 
         }
+
         private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
 
         }
+
         private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
         {
             e.Graphics.DrawString(richTextBox1.Text, richTextBox1.Font, Brushes.Black, 100, 100);
         }
+
         private void PrintFile(object sender, EventArgs e)
         {
             PrintDialog printDialog = new PrintDialog();
@@ -183,57 +200,77 @@ namespace SimpleTextEditor
             printText = printText.Substring(charactersOnPage);
             e.HasMorePages = printText.Length > 0;
         }
-
     }
+
     public partial class AboutForm : Form
     {
+        private System.Windows.Forms.Label labelAbout;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+
         public AboutForm()
         {
             InitializeComponent();
+
+            
+            this.Text = "About Simple Text Editor";
+            this.labelAbout.Text = "Simple Text Editor v1.0\n\nLitvinenko Dmitro";
         }
+
         private void InitializeComponent()
         {
             this.SuspendLayout();
-            // 
-            // Form1
-            // 
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Name = "Form1";
-            this.Text = "Simple Text Editor";
-            this.ResumeLayout(false);
-            this.PerformLayout();
 
             // StatusStrip
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
+
             // 
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-    this.toolStripStatusLabel1});
+                this.toolStripStatusLabel1});
             this.statusStrip1.Location = new System.Drawing.Point(0, 428);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(800, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(400, 22);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
+
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
+
             // 
-            // Form1
+            // AboutForm
             // 
+            this.ClientSize = new System.Drawing.Size(400, 200);
+            this.Name = "AboutForm";
+            this.Text = "About Simple Text Editor";
+
+            // labelAbout
+            this.labelAbout = new System.Windows.Forms.Label();
+            this.labelAbout.AutoSize = true;
+            this.labelAbout.Location = new System.Drawing.Point(20, 20);
+            this.labelAbout.Size = new System.Drawing.Size(300, 100);
+            this.labelAbout.TabIndex = 0;
+            this.labelAbout.Text = "labelAbout";
+            this.Controls.Add(this.labelAbout);
+
             this.Controls.Add(this.statusStrip1);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
             this.ResumeLayout(false);
             this.PerformLayout();
         }
-
-        private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
+

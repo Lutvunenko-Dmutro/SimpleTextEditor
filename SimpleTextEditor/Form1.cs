@@ -1,276 +1,204 @@
 using System;
 using System.Windows.Forms;
-using System.IO;
 using System.Drawing;
-using System.Drawing.Printing;
+using SimpleTextEditor.Services;
+using SimpleTextEditor.UI;
+using SimpleTextEditor.Theme;
 
 namespace SimpleTextEditor
 {
     public partial class Form1 : Form
     {
-        private string printText;
+        private FlowLayoutPanel tabStrip;
+        private Panel contentPanel;
+        
+        internal ToolStripStatusLabel statusLabel;
+        internal ToolStripDropDownButton syntaxLabel;
+        internal ToolStripStatusLabel zoomLabel;
+        internal ToolStripStatusLabel encodingLabel;
+        internal ToolStripStatusLabel formatLabel;
+        
+        internal PrintHandler printHandler = new PrintHandler();
+        internal FormatHandler formatHandler = new FormatHandler();
+        internal TabManager tabManager;
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            Theme.WindowsTheme.EnableDarkMode(this.Handle);
+        }
+
         public Form1()
         {
             InitializeComponent();
-            this.ControlBox = false; 
-            CreateMainMenu();
-        }
-
-        private void CreateMainMenu()
-        {
-            MenuStrip mainMenu = new MenuStrip();
-
-            // File menu
-            ToolStripMenuItem fileMenu = new ToolStripMenuItem("File");
-            ToolStripMenuItem openMenuItem = new ToolStripMenuItem("Open");
-            ToolStripMenuItem saveMenuItem = new ToolStripMenuItem("Save");
-            ToolStripMenuItem printMenuItem = new ToolStripMenuItem("Print");
-            ToolStripMenuItem exitMenuItem = new ToolStripMenuItem("Exit");
-
-            openMenuItem.Click += OpenFile;
-            saveMenuItem.Click += SaveFile;
-            printMenuItem.Click += PrintFile;
-            exitMenuItem.Click += ExitApplication;
-
-            fileMenu.DropDownItems.Add(openMenuItem);
-            fileMenu.DropDownItems.Add(saveMenuItem);
-            fileMenu.DropDownItems.Add(printMenuItem);
-            fileMenu.DropDownItems.Add(exitMenuItem);
-
-            // Edit menu
-            ToolStripMenuItem editMenu = new ToolStripMenuItem("Edit");
-            ToolStripMenuItem fontMenuItem = new ToolStripMenuItem("Font");
-            ToolStripMenuItem colorMenuItem = new ToolStripMenuItem("Color");
-
-            fontMenuItem.Click += ChangeFont;
-            colorMenuItem.Click += ChangeColor;
-
-            editMenu.DropDownItems.Add(fontMenuItem);
-            editMenu.DropDownItems.Add(colorMenuItem);
-
-            // Help menu
-            ToolStripMenuItem helpMenu = new ToolStripMenuItem("Help");
-            ToolStripMenuItem aboutMenuItem = new ToolStripMenuItem("About");
-
-            aboutMenuItem.Click += ShowAboutForm;
-
-            helpMenu.DropDownItems.Add(aboutMenuItem);
-
-            mainMenu.Items.Add(fileMenu);
-            mainMenu.Items.Add(editMenu);
-            mainMenu.Items.Add(helpMenu);
-
-            this.Controls.Add(mainMenu);
-            this.MainMenuStrip = mainMenu;
-        }
-
-        private void OpenFile(object sender, EventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    string fileContent = File.ReadAllText(openFileDialog.FileName);
-                    printText = fileContent;
-                    richTextBox1.Text = fileContent;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error loading the file: " + ex.Message);
-                }
-            }
-        }
-
-        private void SaveFile(object sender, EventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    File.WriteAllText(saveFileDialog.FileName, richTextBox1.Text);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error saving the file: " + ex.Message);
-                }
-            }
-        }
-
-        private void ChangeFont(object sender, EventArgs e)
-        {
-            FontDialog fontDialog = new FontDialog();
-            if (fontDialog.ShowDialog() == DialogResult.OK)
-            {
-                richTextBox1.Font = fontDialog.Font;
-            }
-        }
-
-        private void ChangeColor(object sender, EventArgs e)
-        {
-            ColorDialog colorDialog = new ColorDialog();
-            if (colorDialog.ShowDialog() == DialogResult.OK)
-            {
-                richTextBox1.SelectionColor = colorDialog.Color;
-            }
-        }
-
-        private void ShowAboutForm(object sender, EventArgs e)
-        {
-            AboutForm aboutForm = new AboutForm();
-            aboutForm.ShowDialog();
-        }
-
-        private void ExitApplication(object sender, EventArgs e)
-        {
-            if (richTextBox1.Text != printText)
-            {
-                DialogResult result = MessageBox.Show("Do you want to save changes?", "Save Changes", MessageBoxButtons.YesNoCancel);
-
-                if (result == DialogResult.Yes)
-                {
-                    SaveFile(sender, e);
-                }
-                else if (result == DialogResult.Cancel)
-                {
-                    return;
-                }
-            }
-
-            this.Close();
-        }
-
-        private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            ToolStripItem clickedItem = e.ClickedItem;
-
-            if (clickedItem.Text == "Open")
-            {
-                OpenFile(sender, e);
-            }
-            else if (clickedItem.Text == "Save")
-            {
-                SaveFile(sender, e);
-            }
-            else if (clickedItem.Text == "Font")
-            {
-                ChangeFont(sender, e);
-            }
-            else if (clickedItem.Text == "Color")
-            {
-                ChangeColor(sender, e);
-            }
-        }
-
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-
-        }
-
-        private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
-        {
-            e.Graphics.DrawString(richTextBox1.Text, richTextBox1.Font, Brushes.Black, 100, 100);
-        }
-
-        private void PrintFile(object sender, EventArgs e)
-        {
-            PrintDialog printDialog = new PrintDialog();
-
-            if (printDialog.ShowDialog() == DialogResult.OK)
-            {
-                PrintDocument printDocument = new PrintDocument();
-                printDocument.PrintPage += PrintDocument_PrintPage;
-
-                printDocument.Print();
-            }
-        }
-
-        private void PrintDocument_PrintPage(object sender, PrintPageEventArgs e)
-        {
-            int charactersOnPage = 0;
-            int linesPerPage = 0;
-            e.Graphics.DrawString(printText, richTextBox1.Font, Brushes.Black, e.MarginBounds, StringFormat.GenericTypographic);
-            e.Graphics.MeasureString(printText, richTextBox1.Font, e.MarginBounds.Size, StringFormat.GenericTypographic, out charactersOnPage, out linesPerPage);
-            printText = printText.Substring(charactersOnPage);
-            e.HasMorePages = printText.Length > 0;
-        }
-    }
-
-    public partial class AboutForm : Form
-    {
-        private System.Windows.Forms.Label labelAbout;
-        private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-
-        public AboutForm()
-        {
-            InitializeComponent();
-
             
-            this.Text = "About Simple Text Editor";
-            this.labelAbout.Text = "Simple Text Editor v1.0\n\nLitvinenko Dmitro";
+            this.Text = "Simple Text Editor";
+            this.BackColor = AppTheme.Background;
+            this.ForeColor = AppTheme.TextPrimary;
+            
+            // Hide old controls
+            richTextBox1.Visible = false;
+            toolStrip1.Visible = false;
+
+            // Custom Tab System
+            tabStrip = new FlowLayoutPanel();
+            tabStrip.Dock = DockStyle.Fill;
+            tabStrip.BackColor = AppTheme.Background;
+            tabStrip.WrapContents = false;
+            tabStrip.AutoScroll = true;
+            tabStrip.Margin = new Padding(0);
+
+            contentPanel = new Panel();
+            contentPanel.Dock = DockStyle.Fill;
+            contentPanel.BackColor = AppTheme.Background;
+            contentPanel.Margin = new Padding(0);
+            contentPanel.Padding = new Padding(10, 5, 10, 5);
+
+            tabManager = new TabManager(tabStrip, contentPanel);
+            tabManager.EditorChanged += TabManager_EditorChanged;
+            tabManager.NoTabsLeft += (s, e) => this.Close();
+
+            // StatusStrip Setup
+            StatusBarBuilder.BuildStatusBar(this);
+
+            // Menu & Toolbar Setup (Combined)
+            var mainMenu = MenuBuilder.BuildCombinedMenu(this);
+            mainMenu.Dock = DockStyle.Fill;
+            mainMenu.Margin = new Padding(0);
+            
+            var formatToolbar = FormatToolbarBuilder.BuildFormatToolbar(this);
+            formatToolbar.AutoSize = true;
+
+            TableLayoutPanel toolbarContainer = new TableLayoutPanel();
+            toolbarContainer.Dock = DockStyle.Fill;
+            toolbarContainer.RowCount = 1;
+            toolbarContainer.ColumnCount = 3;
+            toolbarContainer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            toolbarContainer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            toolbarContainer.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            toolbarContainer.BackColor = AppTheme.Background;
+            toolbarContainer.Margin = new Padding(0);
+            
+            toolbarContainer.Controls.Add(formatToolbar, 1, 0);
+            
+            // Build absolute layout structure
+            TableLayoutPanel layoutPanel = new TableLayoutPanel();
+            layoutPanel.Dock = DockStyle.Fill;
+            layoutPanel.RowCount = 5;
+            layoutPanel.ColumnCount = 1;
+            layoutPanel.Margin = new Padding(0);
+            layoutPanel.BackColor = AppTheme.Background;
+            
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F)); // tabStrip
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // mainMenu
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // formatToolbar
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // contentPanel
+            layoutPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // statusStrip1
+            
+            layoutPanel.Controls.Add(tabStrip, 0, 0);
+            layoutPanel.Controls.Add(mainMenu, 0, 1);
+            layoutPanel.Controls.Add(toolbarContainer, 0, 2);
+            layoutPanel.Controls.Add(contentPanel, 0, 3);
+            layoutPanel.Controls.Add(statusStrip1, 0, 4);
+            
+            this.Controls.Add(layoutPanel);
+            
+            tabManager.AddNewTab("Untitled", "");
         }
 
-        private void InitializeComponent()
+        private void TabManager_EditorChanged(object sender, EventArgs e)
         {
-            this.SuspendLayout();
+            var rtb = sender as RichTextBox;
+            if (rtb == null) return;
 
-            // StatusStrip
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-
-            this.statusStrip1.SuspendLayout();
-            this.SuspendLayout();
-
-            // 
-            // statusStrip1
-            // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 428);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(400, 22);
-            this.statusStrip1.TabIndex = 0;
-            this.statusStrip1.Text = "statusStrip1";
-
-            // 
-            // toolStripStatusLabel1
-            // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
-
-            // 
-            // AboutForm
-            // 
-            this.ClientSize = new System.Drawing.Size(400, 200);
-            this.Name = "AboutForm";
-            this.Text = "About Simple Text Editor";
-
-            // labelAbout
-            this.labelAbout = new System.Windows.Forms.Label();
-            this.labelAbout.AutoSize = true;
-            this.labelAbout.Location = new System.Drawing.Point(20, 20);
-            this.labelAbout.Size = new System.Drawing.Size(300, 100);
-            this.labelAbout.TabIndex = 0;
-            this.labelAbout.Text = "labelAbout";
-            this.Controls.Add(this.labelAbout);
-
-            this.Controls.Add(this.statusStrip1);
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
-
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            int index = rtb.SelectionStart;
+            int line = rtb.GetLineFromCharIndex(index);
+            int firstChar = rtb.GetFirstCharIndexFromLine(line);
+            int column = index - firstChar;
+            int totalChars = rtb.Text.Length;
+            
+            statusLabel.Text = $"Рядок {line + 1}, стовпець {column + 1} | {totalChars} символів";
+            
+            bool isPreview = tabManager.PreviewManager.IsPreviewMode(rtb);
+            if (isPreview) syntaxLabel.Text = "Форматований";
+            else syntaxLabel.Text = tabManager.GetSyntax(rtb) == "Markdown" ? "Синтаксис Markdown" : tabManager.GetSyntax(rtb);
         }
+
+        internal void OpenFile(object sender, EventArgs e)
+        {
+            var result = FileHandler.OpenFile();
+            if (result.fileName != null)
+            {
+                string title = System.IO.Path.GetFileName(result.fileName);
+                var currentEditor = tabManager.CurrentEditor;
+                
+                if (tabManager.EditorCount == 1 && string.IsNullOrEmpty(tabManager.GetFilePath(currentEditor)) && string.IsNullOrEmpty(currentEditor.Text))
+                {
+                    currentEditor.Text = result.content;
+                    tabManager.SetFilePath(currentEditor, result.fileName);
+                }
+                else
+                {
+                    tabManager.AddNewTab(title, result.content, result.fileName);
+                }
+            }
+        }
+
+        internal void SaveFile(object sender, EventArgs e) => PerformSave(tabManager.CurrentEditor, false);
+        internal void SaveAsFile(object sender, EventArgs e) => PerformSave(tabManager.CurrentEditor, true);
+        
+        internal void SaveAllFiles(object sender, EventArgs e)
+        {
+            foreach (var editor in tabManager.GetAllEditors())
+            {
+                PerformSave(editor, false);
+            }
+        }
+
+        private void PerformSave(RichTextBox editor, bool forceSaveAs)
+        {
+            if (editor == null) return;
+            tabManager.PreviewManager.SyncPreviewToEditor(editor);
+            
+            string currentPath = forceSaveAs ? null : tabManager.GetFilePath(editor);
+            string savedPath = FileHandler.SaveFile(editor.Text, currentPath);
+            
+            if (savedPath != null)
+            {
+                tabManager.SetFilePath(editor, savedPath);
+            }
+        }
+
+        internal void ShowAboutForm(object sender, EventArgs e)
+        {
+            using (AboutForm aboutForm = new AboutForm())
+            {
+                aboutForm.ShowDialog();
+            }
+        }
+
+        internal void PageSetup(object sender, EventArgs e)
+        {
+            using (PageSetupDialog psd = new PageSetupDialog())
+            {
+                psd.Document = printDocument1;
+                psd.ShowDialog();
+            }
+        }
+
+        internal void PrintFile(object sender, EventArgs e)
+        {
+            if (tabManager.CurrentEditor != null)
+            {
+                printHandler.PrintFile(tabManager.CurrentEditor.Text, tabManager.CurrentEditor.Font);
+            }
+        }
+
+        // Keep stubs for designer events
+        private void richTextBox1_TextChanged(object sender, EventArgs e) { }
+        private void richTextBox1_SelectionChanged(object sender, EventArgs e) { }
+        private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e) { }
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e) { }
+        private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e) { }
     }
 }
-

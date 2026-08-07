@@ -1,4 +1,4 @@
-﻿namespace SimpleTextEditor
+namespace SimpleTextEditor
 {
     partial class Form1
     {
@@ -95,7 +95,7 @@
         private ToolStrip toolStrip1;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private RichTextBox richTextBox1;
-        private StatusStrip statusStrip1;
+        internal StatusStrip statusStrip1;
         private System.Drawing.Printing.PrintDocument printDocument1;
         private ContextMenuStrip contextMenuStrip1;
     }

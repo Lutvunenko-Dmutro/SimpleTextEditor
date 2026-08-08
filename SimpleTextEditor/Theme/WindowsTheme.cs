@@ -31,5 +31,33 @@ namespace SimpleTextEditor.Theme
                 DwmSetWindowAttribute(handle, attribute, ref useImmersiveDarkMode, sizeof(int));
             }
         }
+        [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
+        public static extern int SetWindowTheme(IntPtr hWnd, string pszSubAppName, string pszSubIdList);
+
+        public static void ApplyDarkThemeToScrollbars(IntPtr handle)
+        {
+            SetWindowTheme(handle, "DarkMode_Explorer", null);
+        }
+
+        public static void ApplyDarkThemeToComboBox(IntPtr handle)
+        {
+            SetWindowTheme(handle, "DarkMode_CFD", null);
+        }
+
+        public static void ApplyDarkThemeToAllControls(Control parent)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                if (c is ComboBox)
+                {
+                    ApplyDarkThemeToComboBox(c.Handle);
+                }
+                else if (c is Panel || c is FlowLayoutPanel || c is TableLayoutPanel)
+                {
+                    ApplyDarkThemeToScrollbars(c.Handle);
+                }
+                ApplyDarkThemeToAllControls(c);
+            }
+        }
     }
 }

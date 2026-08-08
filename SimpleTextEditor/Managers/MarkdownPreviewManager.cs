@@ -89,23 +89,24 @@ namespace SimpleTextEditor.UI
                 <meta http-equiv='X-UA-Compatible' content='IE=edge' />
                 <style>
                     html, body {{ height: 100%; margin: 0; }}
-                    body {{ background-color: #1E1E1E; color: #CCCCCC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; padding: 20px; font-size: 15px; line-height: 1.6; min-height: 100%; cursor: text; }}
-                    h1, h2, h3, h4, h5, h6 {{ color: #FFFFFF; font-weight: 600; margin-top: 24px; margin-bottom: 16px; border-bottom: 1px solid #333; padding-bottom: 0.3em; }}
-                    h1 {{ font-size: 2em; }}
-                    h2 {{ font-size: 1.5em; }}
-                    table {{ border-collapse: collapse; width: 100%; margin-bottom: 16px; background-color: #1E1E1E; border-radius: 6px; overflow: hidden; }}
-                    th, td {{ border: 1px solid #444; padding: 10px 13px; text-align: left; }}
-                    th {{ background-color: #252526; font-weight: 600; color: #FFF; }}
-                    tr:nth-child(even) {{ background-color: #252526; }}
-                    a {{ color: #3794FF; text-decoration: none; }}
-                    a:hover {{ text-decoration: underline; }}
-                    pre {{ background: #1E1E1E; border: 1px solid #333; padding: 16px; border-radius: 6px; overflow-x: auto; line-height: 1.45; }}
-                    code {{ background: #2D2D30; padding: 0.2em 0.4em; border-radius: 6px; font-family: Consolas, 'Courier New', monospace; font-size: 85%; }}
-                    pre code {{ background: transparent; padding: 0; font-size: 100%; color: #DCDCAA; }}
-                    blockquote {{ border-left: 4px solid #007ACC; margin: 0 0 16px 0; padding: 0 15px; color: #8B949E; }}
-                    ul, ol {{ padding-left: 2em; margin-top: 0; margin-bottom: 16px; }}
-                    img {{ max-width: 100%; box-sizing: content-box; background-color: #1E1E1E; }}
-                    hr {{ height: 0.25em; padding: 0; margin: 24px 0; background-color: #333; border: 0; }}
+                    body {{ background-color: #0D0D12; color: #E6E4FA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; padding: 32px 40px; font-size: 15px; line-height: 1.7; min-height: 100%; cursor: text; }}
+                    h1, h2, h3, h4, h5, h6 {{ color: #F0EEFF; font-weight: 600; margin-top: 28px; margin-bottom: 14px; border-bottom: 1px solid #2A2846; padding-bottom: 0.35em; }}
+                    h1 {{ font-size: 2.1em; }}
+                    h2 {{ font-size: 1.55em; }}
+                    h3 {{ font-size: 1.25em; }}
+                    table {{ border-collapse: collapse; width: 100%; margin-bottom: 20px; border-radius: 8px; overflow: hidden; border: 1px solid #2A2846; }}
+                    th, td {{ border: 1px solid #2A2846; padding: 10px 14px; text-align: left; }}
+                    th {{ background-color: #20203050; font-weight: 600; color: #A78BFA; }}
+                    tr:nth-child(even) {{ background-color: #16162060; }}
+                    a {{ color: #A78BFA; text-decoration: none; border-bottom: 1px dotted #7C4DFF; }}
+                    a:hover {{ color: #C4B5FD; border-bottom: 1px solid #A78BFA; }}
+                    pre {{ background: #16162050; border: 1px solid #2A2846; padding: 18px; border-radius: 10px; overflow-x: auto; line-height: 1.5; }}
+                    code {{ background: #20203070; padding: 0.2em 0.45em; border-radius: 5px; font-family: 'Cascadia Code', Consolas, 'Courier New', monospace; font-size: 86%; color: #C4B5FD; }}
+                    pre code {{ background: transparent; padding: 0; font-size: 100%; color: #E4D7FF; }}
+                    blockquote {{ border-left: 4px solid #7C4DFF; margin: 0 0 18px 0; padding: 4px 18px; color: #AC9FD8; background: #1C1A2E; border-radius: 0 8px 8px 0; }}
+                    ul, ol {{ padding-left: 2em; margin-top: 0; margin-bottom: 18px; }}
+                    img {{ max-width: 100%; box-sizing: content-box; border-radius: 6px; }}
+                    hr {{ height: 1px; padding: 0; margin: 28px 0; background-color: #2A2846; border: 0; }}
                 </style>
             </head>
             <body contenteditable='true'>

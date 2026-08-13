@@ -51,6 +51,9 @@ namespace SimpleTextEditor.Tests
             var handler = new FormatHandler();
             handler.InsertHeading(rtb, 1);
 
+            // The method moves the cursor to the end and restores the font.
+            // We need to select the formatted text to check its font.
+            rtb.Select(0, 5); 
             Assert.Equal(26f, rtb.SelectionFont.Size);
             Assert.True(rtb.SelectionFont.Bold);
         }

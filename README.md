@@ -63,6 +63,28 @@ SimpleTextEditor/
    dotnet run
    ```
 
+## How to Build and Run
+1. Open `SimpleTextEditor.sln` in Visual Studio.
+2. Build the solution (`Ctrl + Shift + B`).
+3. Press `F5` to run the application.
+
+Alternatively, you can build from the command line:
+```bash
+dotnet build --configuration Release
+```
+
+## How to Run Tests
+The project includes automated Unit Tests. To run them:
+```bash
+dotnet test
+```
+
+## CI/CD and Code Quality
+- **GitHub Actions**: The project automatically builds and runs tests on every push to the `master` branch.
+- **Code Style**: The project enforces formatting via `.editorconfig` (Roslyn Analyzers).
+- **Logging**: Fatal errors and crashes are logged via `NLog` to the `logs/` directory inside the application folder.
+- **Strict Typing**: The project runs with `<Nullable>enable</Nullable>` to prevent `NullReferenceException`.
+
 ## 💡 Історія Розробки
 
 Цей застосунок пройшов шлях від класичного сірого WinForms-блокнота до сучасного IDE-подібного редактора. Під час рефакторингу:

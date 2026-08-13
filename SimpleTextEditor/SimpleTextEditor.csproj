@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -11,6 +11,8 @@
 
   <ItemGroup>
     <PackageReference Include="Markdig" Version="1.3.2" />
+    <PackageReference Include="NLog" Version="6.1.4" />
+    <PackageReference Include="NLog.Windows.Forms" Version="6.1.4" />
     <PackageReference Include="ReverseMarkdown" Version="6.1.1" />
   </ItemGroup>
 

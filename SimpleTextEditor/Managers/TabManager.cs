@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using SimpleTextEditor.Theme;
 using SimpleTextEditor.UI.Controls;
+using SimpleTextEditor;
 
 namespace SimpleTextEditor.UI
 {
@@ -73,6 +74,15 @@ namespace SimpleTextEditor.UI
                 EditorChanged?.Invoke(s, e);
             };
             rtb.SelectionChanged += (s, e) => EditorChanged?.Invoke(s, e);
+
+            // ── Save selection when focus leaves (toolbar button clicks steal focus) ─
+            rtb.LostFocus += (s, e) =>
+            {
+                // Find the main form to get formatHandler
+                Form frm = rtb.FindForm();
+                if (frm is Form1 mainForm)
+                    mainForm.formatHandler.SaveSelection(rtb);
+            };
 
             _editors.Add(rtb);
             _contentPanel.Controls.Add(container);

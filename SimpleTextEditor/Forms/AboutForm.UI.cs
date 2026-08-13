@@ -10,12 +10,7 @@ namespace SimpleTextEditor
     {
         private void BuildUI()
         {
-            // ── Drag to move (borderless form) ────────────────────────────────────
-            Point dragStart = Point.Empty;
-            bool dragging = false;
-            this.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) { dragging = true; dragStart = e.Location; } };
-            this.MouseMove += (s, e) => { if (dragging) Location = new Point(Location.X + e.X - dragStart.X, Location.Y + e.Y - dragStart.Y); };
-            this.MouseUp   += (s, e) => dragging = false;
+            // (no drag – this is a fixed modal dialog)
 
             // ── Close button (top-right) ───────────────────────────────────────────
             var btnClose = new Button
@@ -153,14 +148,7 @@ namespace SimpleTextEditor
             btnOK.Click += (s, e) => Close();
             this.Controls.Add(btnOK);
 
-            // Make all labels also draggable
-            foreach (Control c in this.Controls)
-            {
-                if (c is Label lbl2)
-                {
-                    lbl2.MouseDown += (s, e) => { dragging = true; dragStart = lbl2.PointToScreen(e.Location); dragStart = this.PointToClient(dragStart); };
-                }
-            }
+
         }
     }
 }

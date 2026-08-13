@@ -28,6 +28,7 @@ namespace SimpleTextEditor.UI
                 BorderStyle = BorderStyle.None,
                 Text        = content,
                 WordWrap    = true,
+                HideSelection = false,
                 SelectionColor = AppTheme.TextEditor,
                 ScrollBars  = RichTextBoxScrollBars.None
             };
@@ -36,6 +37,9 @@ namespace SimpleTextEditor.UI
             // Fallback font if Cascadia Code not installed
             try { var _ = new Font("Cascadia Code", 12f); }
             catch { rtb.Font = new Font("Consolas", 12f); }
+
+            // ── Bullet list continuation on Enter ────────────────────────────────
+            rtb.KeyDown += (s, e) => HandleEditorKeyDown(rtb, e);
 
             // ── Line number rendering ────────────────────────────────────────────
             linePanel.Paint += (s, e) =>
@@ -49,7 +53,7 @@ namespace SimpleTextEditor.UI
                 int lastIdx   = rtb.GetCharIndexFromPosition(pt);
                 int lastLine  = rtb.GetLineFromCharIndex(lastIdx);
 
-                using var font  = new Font(rtb.Font.FontFamily, rtb.Font.Size - 2f);
+                using var font  = new Font(rtb.Font.FontFamily, Math.Max(1f, rtb.Font.Size - 2f));
                 using var brush = new SolidBrush(AppTheme.TextMuted);
                 using var activeBrush = new SolidBrush(AppTheme.AccentLight);
 
@@ -82,6 +86,49 @@ namespace SimpleTextEditor.UI
             rtb.BringToFront();
 
             return (container, rtb);
+        }
+
+        /// <summary>
+        /// Handles special key behaviour inside the editor:
+        /// - Enter in a bullet-list paragraph → continues the bullet on the next line.
+        /// - Enter in an empty bullet line    → turns off bullet (exits the list).
+        /// </summary>
+        private static void HandleEditorKeyDown(RichTextBox rtb, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter || e.Shift || e.Control || e.Alt)
+                return;
+
+            // Only act when we're in a bulleted paragraph
+            if (!rtb.SelectionBullet)
+                return;
+
+            // Check whether the CURRENT line is empty (user wants to exit the list)
+            int lineIdx = rtb.GetLineFromCharIndex(rtb.SelectionStart);
+            string currentLineText = lineIdx < rtb.Lines.Length ? rtb.Lines[lineIdx] : "";
+
+            if (string.IsNullOrWhiteSpace(currentLineText))
+            {
+                // Exit bullet list: turn off bullet and let the normal Enter do its work
+                rtb.SelectionBullet = false;
+                rtb.SelectionIndent = 0;
+                // Don't suppress — we still want the newline
+                return;
+            }
+
+            // Continue the list: insert newline and keep bullet formatting
+            e.SuppressKeyPress = true; // prevent default Enter
+
+            int caretPos = rtb.SelectionStart;
+            rtb.Select(caretPos, rtb.SelectionLength);
+            rtb.SelectedText = "\n";
+
+            // The new line inherits bullet automatically in RichTextBox,
+            // but we make sure the font is reset to the base font (not heading size)
+            Font baseFont = rtb.Font;
+            // Only reset if the current selection font differs greatly (was a heading)
+            Font curFont = rtb.SelectionFont;
+            if (curFont != null && curFont.Size > baseFont.Size + 2f)
+                rtb.SelectionFont = new Font(baseFont.FontFamily, baseFont.Size, FontStyle.Regular);
         }
     }
 }

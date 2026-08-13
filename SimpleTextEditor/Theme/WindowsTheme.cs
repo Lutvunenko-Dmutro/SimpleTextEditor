@@ -41,7 +41,8 @@ namespace SimpleTextEditor.Theme
 
         public static void ApplyDarkThemeToComboBox(IntPtr handle)
         {
-            SetWindowTheme(handle, "DarkMode_CFD", null);
+            // DarkMode_Explorer correctly themes the popup list border and scrollbar
+            SetWindowTheme(handle, "DarkMode_Explorer", null);
         }
 
         public static void ApplyDarkThemeToAllControls(Control parent)

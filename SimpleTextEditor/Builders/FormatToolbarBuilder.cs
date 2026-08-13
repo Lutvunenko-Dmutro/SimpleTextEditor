@@ -28,9 +28,13 @@ namespace SimpleTextEditor.UI
             // Search box (right-aligned)
             var searchControls = BuildSearchControls(mainForm);
 
+            var btnFontFamily = BuildFontFamilyDropdown(mainForm);
+            var btnFontSize   = BuildFontSizeDropdown(mainForm);
+
             // Assemble
             toolbar.Items.AddRange(new ToolStripItem[]
             {
+                btnFontFamily, btnFontSize, new ToolStripSeparator(),
                 btnHeadings, new ToolStripSeparator(),
                 btnLists,    new ToolStripSeparator()
             });

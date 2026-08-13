@@ -18,9 +18,10 @@ namespace SimpleTextEditor
         internal ToolStripStatusLabel    encodingLabel;
         internal ToolStripStatusLabel    formatLabel;
         
-        internal PrintHandler  printHandler  = new PrintHandler();
-        internal FormatHandler formatHandler = new FormatHandler();
-        internal TabManager    tabManager;
+        internal PrintHandler         printHandler  = new PrintHandler();
+        internal FormatHandler         formatHandler = new FormatHandler();
+        internal TabManager            tabManager;
+        internal NotificationService   notifier;
 
         protected override void OnLoad(EventArgs e)
         {
@@ -65,6 +66,14 @@ namespace SimpleTextEditor
             tabManager.EditorChanged += TabManager_EditorChanged;
             tabManager.NoTabsLeft    += (s, e) => this.Close();
 
+            // ── Notification service (needs statusLabel, built in StatusBar) ────────
+            // Will be wired after the first render; use a post-load hook
+            this.Shown += (s, e) =>
+            {
+                notifier = new NotificationService(statusLabel);
+                formatHandler.Notifier = notifier;
+            };
+
             // ── Keyboard shortcuts ─────────────────────────────────────────────────
             this.KeyPreview = true;
             this.KeyDown   += Form1_KeyDown;
@@ -81,6 +90,32 @@ namespace SimpleTextEditor
                 if (e.Shift) tabManager.SelectPrevTab();
                 else         tabManager.SelectNextTab();
                 e.SuppressKeyPress = true;
+                return;
+            }
+
+            var rtb = tabManager.CurrentEditor;
+            if (rtb == null) return;
+            bool formatted = tabManager.IsFormattedMode(rtb);
+
+            // Ctrl+B — Bold
+            if (e.Control && !e.Shift && !e.Alt && e.KeyCode == Keys.B)
+            {
+                e.SuppressKeyPress = true;
+                if (formatted) formatHandler.ToggleBold(rtb);
+                else { int s = rtb.SelectionStart; rtb.SelectedText = "**" + rtb.SelectedText + "**"; rtb.SelectionStart = s + 2; }
+            }
+            // Ctrl+I — Italic
+            else if (e.Control && !e.Shift && !e.Alt && e.KeyCode == Keys.I)
+            {
+                e.SuppressKeyPress = true;
+                if (formatted) formatHandler.ToggleItalic(rtb);
+                else { int s = rtb.SelectionStart; rtb.SelectedText = "_" + rtb.SelectedText + "_"; rtb.SelectionStart = s + 1; }
+            }
+            // Ctrl+U — Underline
+            else if (e.Control && !e.Shift && !e.Alt && e.KeyCode == Keys.U)
+            {
+                e.SuppressKeyPress = true;
+                if (formatted) formatHandler.ToggleUnderline(rtb);
             }
         }
 

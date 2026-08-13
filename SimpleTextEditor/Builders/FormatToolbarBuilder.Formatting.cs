@@ -1,4 +1,7 @@
+using System.Drawing;
 using System.Windows.Forms;
+using SimpleTextEditor.Theme;
+
 
 namespace SimpleTextEditor.UI
 {
@@ -220,6 +223,120 @@ namespace SimpleTextEditor.UI
                 btnLink, btnImage, btnQuote, btnHR,
                 new ToolStripSeparator()
             };
+        }
+
+        public static ToolStripItem BuildFontFamilyDropdown(Form1 mainForm)
+        {
+            var btnFont = new ToolStripDropDownButton
+            {
+                Text         = "Segoe UI",
+                ToolTipText  = "Шрифт",
+                AutoSize     = false,
+                Width        = 130,
+                BackColor    = AppTheme.Surface,
+                ForeColor    = AppTheme.TextPrimary,
+                Font         = new System.Drawing.Font("Segoe UI", 9.5f),
+                DisplayStyle = ToolStripItemDisplayStyle.Text
+            };
+
+            var popupList = new ListBox
+            {
+                BackColor      = AppTheme.Surface,
+                ForeColor      = AppTheme.TextPrimary,
+                BorderStyle    = BorderStyle.None,
+                IntegralHeight = false,
+                Height         = 300,
+                Width          = 180,
+                Font           = new System.Drawing.Font("Segoe UI", 9.5f)
+            };
+            popupList.HandleCreated += (s, e) => Theme.WindowsTheme.ApplyDarkThemeToScrollbars(popupList.Handle);
+
+            foreach (var family in System.Drawing.FontFamily.Families)
+                popupList.Items.Add(family.Name);
+
+            int segoeIdx = popupList.Items.IndexOf("Segoe UI");
+            if (segoeIdx >= 0) popupList.SelectedIndex = segoeIdx;
+
+            var host = new ToolStripControlHost(popupList) { Margin = Padding.Empty, Padding = Padding.Empty };
+            var dropDown = new ToolStripDropDown { Padding = new Padding(1), BackColor = AppTheme.Border };
+            dropDown.Items.Add(host);
+            btnFont.DropDown = dropDown;
+
+            popupList.SelectedIndexChanged += (s, e) =>
+            {
+                if (popupList.SelectedItem == null) return;
+                btnFont.Text = popupList.SelectedItem.ToString();
+                dropDown.Close();
+                var rtb = mainForm.tabManager.CurrentEditor;
+                if (rtb == null || !mainForm.tabManager.IsFormattedMode(rtb)) return;
+                System.Drawing.Font currentFont = rtb.SelectionFont ?? rtb.Font;
+                rtb.SelectionFont = new System.Drawing.Font(btnFont.Text, currentFont.Size, currentFont.Style);
+                rtb.Focus();
+            };
+
+            return btnFont;
+        }
+
+        public static ToolStripItem BuildFontSizeDropdown(Form1 mainForm)
+        {
+            var btnSize = new ToolStripDropDownButton
+            {
+                Text         = "12",
+                ToolTipText  = "Розмір шрифту",
+                AutoSize     = false,
+                Width        = 52,
+                BackColor    = AppTheme.Surface,
+                ForeColor    = AppTheme.TextPrimary,
+                Font         = new System.Drawing.Font("Segoe UI", 9.5f),
+                DisplayStyle = ToolStripItemDisplayStyle.Text
+            };
+
+            var popupList = new ListBox
+            {
+                BackColor      = AppTheme.Surface,
+                ForeColor      = AppTheme.TextPrimary,
+                BorderStyle    = BorderStyle.None,
+                IntegralHeight = false,
+                Height         = 200,
+                Width          = 60,
+                Font           = new System.Drawing.Font("Segoe UI", 9.5f)
+            };
+            popupList.HandleCreated += (s, e) => Theme.WindowsTheme.ApplyDarkThemeToScrollbars(popupList.Handle);
+
+            string[] sizes = { "8", "9", "10", "11", "12", "14", "16", "18", "20", "22", "24", "26", "28", "36", "48", "72" };
+            popupList.Items.AddRange(sizes);
+            popupList.SelectedItem = "12";
+
+            var host = new ToolStripControlHost(popupList) { Margin = Padding.Empty, Padding = Padding.Empty };
+            var dropDown = new ToolStripDropDown { Padding = new Padding(1), BackColor = AppTheme.Border };
+            dropDown.Items.Add(host);
+            btnSize.DropDown = dropDown;
+
+            popupList.SelectedIndexChanged += (s, e) =>
+            {
+                if (popupList.SelectedItem == null) return;
+                btnSize.Text = popupList.SelectedItem.ToString();
+                dropDown.Close();
+                ApplyFontSize(mainForm, btnSize.Text);
+                mainForm.tabManager.CurrentEditor?.Focus();
+            };
+
+            return btnSize;
+        }
+
+        private static void ApplyFontSize(Form1 mainForm, string sizeText)
+        {
+            var rtb = mainForm.tabManager.CurrentEditor;
+            if (rtb == null || !mainForm.tabManager.IsFormattedMode(rtb)) return;
+            
+            if (float.TryParse(sizeText, out float size))
+            {
+                if (size > 0 && size < 1600) 
+                {
+                    System.Drawing.Font currentFont = rtb.SelectionFont ?? rtb.Font;
+                    rtb.SelectionFont = new System.Drawing.Font(currentFont.FontFamily, size, currentFont.Style);
+                }
+            }
         }
     }
 }
